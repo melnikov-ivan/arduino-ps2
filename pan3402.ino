@@ -82,7 +82,6 @@ void sendData(unsigned char data) {
   for (unsigned char i=0; i<8; i++) {
     char bit = (data >> i) & 0x01;
     writeBit(bit);
-    
     parity = parity ^ bit;
   }
 
@@ -111,7 +110,7 @@ unsigned char readData() {
   pinMode(pinDT, OUTPUT);
   digitalWrite(pinCL, HIGH);
   digitalWrite(pinDT, HIGH);
-  delayMicroseconds(60);
+  delayMicroseconds(50);
 
   pinMode(pinCL, INPUT_PULLUP);
   pinMode(pinDT, INPUT_PULLUP);
@@ -123,14 +122,11 @@ unsigned char readData() {
   }
 
   // data 
-  unsigned char bit = 0x01;
   unsigned char parity = 1;
   for (unsigned char i=0; i<8; i++) {
-    unsigned c = readBit();
-    data = data | (bit * c);
-
-    parity = parity ^ c;
-    bit = bit << 1;
+    char bit = readBit();
+    data = data | (bit << i);
+    parity = parity ^ bit;
   }
 
   // parity bit
