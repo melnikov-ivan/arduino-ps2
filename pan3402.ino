@@ -5,7 +5,6 @@
 
 #define pinCL 5
 #define pinDT 6
-#define pinBT 7
 
 
 void mouse_init()
@@ -20,33 +19,46 @@ void mouse_init()
 }
 
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(250000);
-  pinMode(pinBT, INPUT_PULLUP); // button to start
-//  mouse_init();
+  Serial.begin(9600);
 }
 
 void loop() {
 
-  if (digitalRead(pinBT)) {
-    delay(500);
-    return;
-  }
-  unsigned long time = micros();
   sendData(READ_DATA);
-//  Serial.println(micros() - time);
   if (0xFA != readData()) {
     Serial.println("error");
     return;
   }
-  readData(); // stats
-  Serial.print(micros());
-  Serial.print(" dx ");
-  Serial.print(readData());
-  Serial.print(" dy ");
-  Serial.println(readData());
 
+  char status = readData();
+  int x = get_x(status, readData());
+  int y = get_y(status, readData());
+
+  Serial.print(" dx ");
+  Serial.print(x);
+  Serial.print(" dy ");
+  Serial.println(y);
   
+}
+
+int get_x(char status, int x) {
+  // 4 bit in status is sign for x
+  if (bitRead(status, 4)) {
+    for(int i = 8; i < 16; ++i) {
+      x |= (1<<i);
+    }
+  }
+  return x;
+}
+
+int get_y(char status, int x) {
+  // 5 bit in status is sign for y
+  if (bitRead(status, 5)) {
+    for(int i = 8; i < 16; ++i) {
+      x |= (1<<i);
+    }
+  }
+  return x;
 }
 
 void sendData(unsigned char data) {
@@ -68,10 +80,10 @@ void sendData(unsigned char data) {
 
   unsigned char parity = 1;
   for (unsigned char i=0; i<8; i++) {
-    writeBit(data & 0x01);
+    char bit = (data >> i) & 0x01;
+    writeBit(bit);
     
-    parity = parity ^ (data & 0x01);
-    data = data >> 1;
+    parity = parity ^ bit;
   }
 
   // write parity bit
@@ -161,4 +173,3 @@ unsigned char readBit() {
 void get(unsigned pin, unsigned level) {
   while(digitalRead(pin) != level) { }
 }
-
