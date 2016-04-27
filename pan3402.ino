@@ -5,20 +5,13 @@
 
 
 class PS2 {
-  public: 
-    PS2(int cl, int dt);
-    unsigned char readData();
-    void sendData(unsigned char data);
-  private:
-    void writeBit(unsigned char b);
-    unsigned char readBit();
-    void get(int pin, bool level);
-};  
 
 int pinCL;
 int pinDT;
 
-PS2::PS2(int cl, int dt) {
+public:
+
+PS2(int cl, int dt) {
   pinCL = cl;
   pinDT = dt;
   pinMode(pinCL, OUTPUT);
@@ -27,7 +20,7 @@ PS2::PS2(int cl, int dt) {
   digitalWrite(pinDT, HIGH);
 }
 
-void PS2::sendData(unsigned char data) {
+void sendData(unsigned char data) {
   // Serial.println("sendData()");
   // inhibit
   pinMode(pinCL, OUTPUT);
@@ -74,7 +67,7 @@ void PS2::sendData(unsigned char data) {
   digitalWrite(pinCL, LOW);
 }
 
-unsigned char PS2::readData() {
+unsigned char readData() {
   unsigned char data = 0x00;
 
   pinMode(pinCL, OUTPUT);
@@ -121,7 +114,7 @@ unsigned char PS2::readData() {
 
 // Host-to-Device
 // write one bit
-void PS2::writeBit(unsigned char b) {
+void writeBit(unsigned char b) {
   get(pinCL, LOW);
   // Serial.println(b);
   delayMicroseconds(t1);
@@ -131,7 +124,7 @@ void PS2::writeBit(unsigned char b) {
 
 // Device-to-Host
 // read one bit
-unsigned char PS2::readBit() {
+unsigned char readBit() {
   get(pinCL, LOW);
   delayMicroseconds(t2);
   unsigned char c = digitalRead(pinDT);
@@ -140,12 +133,13 @@ unsigned char PS2::readBit() {
 }
 
 // wait for signal
-void PS2::get(int pin, bool level) {
+void get(int pin, bool level) {
   while(digitalRead(pin) != level) { 
     delayMicroseconds(1);
   }
 }
 
+};
 
 
 
