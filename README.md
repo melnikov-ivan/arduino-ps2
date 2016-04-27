@@ -7,8 +7,14 @@ Based on
 
 ## Usage 
 ```cpp
-PAN3402 mouse(5,6);
+PAN3402 mouse(5,6); // cl, dt
 mouse.sendData();
 mouse.readData()
 ```
+
+For op720 mouse
+* red - VCC
+* black - GND
+* green - CLK
+* white - DT
 

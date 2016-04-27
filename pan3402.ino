@@ -18,6 +18,8 @@ void mouse_init()
   delayMicroseconds(100);
 }
 
+int last = millis();
+
 void setup() {
   Serial.begin(9600);
 }
@@ -34,6 +36,10 @@ void loop() {
   int x = get_x(status, readData());
   int y = get_y(status, readData());
 
+  if (millis() - last < 100) {
+    return;
+  }
+  last = millis();
   Serial.print(" dx ");
   Serial.print(x);
   Serial.print(" dy ");
