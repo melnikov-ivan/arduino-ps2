@@ -1,20 +1,21 @@
-#define inhibit 100
-#define d1 5  // write timeout
-#define d2 5 // read timeout
-
-#include "Arduino.h"
+#define ps2_timeout_inhibit 100
+#define ps2_timeout_write 5 // write timeout
+#define ps2_timeout_read 5 // read timeout
 
 class PS2 {
 
-private:
-  int pinCL;
-  int pinDT;
+int pinCL;
+int pinDT;
 
 public:
 
-  PS2(int clock, int data) {
-    pinCL = clock;
-    pinDT = data;
+  PS2(int cl, int dt) {
+    pinCL = cl;
+    pinDT = dt;
+    pinMode(pinCL, OUTPUT);
+    pinMode(pinDT, OUTPUT);
+    digitalWrite(pinCL, HIGH);
+    digitalWrite(pinDT, HIGH);
   }
 
   void sendData(unsigned char data) {
@@ -22,23 +23,23 @@ public:
     pinMode(pinCL, OUTPUT);
     pinMode(pinDT, OUTPUT);
     digitalWrite(pinCL, LOW);
-    delayMicroseconds(inhibit);
-    
-    
+    delayMicroseconds(ps2_timeout_inhibit);
+
     // request-to-send
     digitalWrite(pinDT, LOW);
-    delayMicroseconds(inhibit);
     digitalWrite(pinCL, HIGH);
-    pinMode(pinCL, INPUT_PULLUP);
 
+    // now read clock
+    pinMode(pinCL, INPUT);
     // wait start bit clock
-    get(pinCL, HIGH);
+    until(pinCL, LOW);
 
+    // write data
     unsigned char parity = 1;
-    for (unsigned char i=0; i<8; i++) {
-      char bit = (data >> i) & 0x01;
-      writeBit(bit);
-      parity = parity ^ bit;
+    for (unsigned char i = 0; i < 8; i++) {
+      unsigned char b = (data >> i) & 0x01;
+      writeBit(b);
+      parity = parity ^ b;
     }
 
     // write parity bit
@@ -49,11 +50,11 @@ public:
     
     // read ACK bit
     pinMode(pinDT, INPUT_PULLUP);
-    get(pinCL, LOW);
+    until(pinCL, LOW);
     if (digitalRead(pinDT) != 0) {
       Serial.println("ERROR ack bit");
     }
-    get(pinCL, HIGH);
+    until(pinCL, HIGH);
 
     // hold line
     digitalWrite(pinCL, LOW);
@@ -79,7 +80,7 @@ public:
 
     // data 
     unsigned char parity = 1;
-    for (unsigned char i=0; i<8; i++) {
+    for (unsigned char i = 0; i < 8; i++) {
       char bit = readBit();
       data = data | (bit << i);
       parity = parity ^ bit;
@@ -108,25 +109,27 @@ private:
   // Host-to-Device
   // write one bit
   void writeBit(unsigned char b) {
-    while(digitalRead(pinCL) != LOW) { }
-    delayMicroseconds(d1);
+    until(pinCL, LOW);
+    delayMicroseconds(ps2_timeout_write);
     digitalWrite(pinDT, b);
-    while(digitalRead(pinCL) != HIGH) { }
+    until(pinCL, HIGH);
   }
 
   // Device-to-Host
   // read one bit
   unsigned char readBit() {
-    get(pinCL, LOW);
-    delayMicroseconds(d2);
+    until(pinCL, LOW);
+    delayMicroseconds(ps2_timeout_read);
     unsigned char c = digitalRead(pinDT);
-    get(pinCL, HIGH);
+    until(pinCL, HIGH);
     return c;
   }
 
   // wait for signal
-  void get(unsigned pin, unsigned level) {
-    while(digitalRead(pin) != level) { }
+  void until(int pin, bool level) {
+    while(digitalRead(pin) != level) { 
+      delayMicroseconds(1);
+    }
   }
 
 };
