@@ -1,17 +1,18 @@
-#define READ_DATA 0xEB
-
+#define MOUSE_READ 0xEB
+#define MOUSE_RESET 0xFF
+#define MOUSE_MODE_REMOTE 0xF0
+#define MOUSE_RESPONSE_OK 0xFA
 
 PS2 m(5, 6);
 
 void mouse_init()
 {
-  m.sendData(0xff);  // reset
+  m.sendData(MOUSE_RESET);  // reset
   m.readData();  // ack byte
   m.readData();  // blank */
   m.readData();  // blank */
-  m.sendData(0xf0);  // remote mode
+  m.sendData(MOUSE_MODE_REMOTE);  // remote mode
   m.readData();  // ack
-  delayMicroseconds(100);
 }
 
 int last = millis();
@@ -23,8 +24,8 @@ void setup() {
 
 void loop() {
 
-  m.sendData(READ_DATA);
-  if (0xFA != m.readData()) {
+  m.sendData(MOUSE_READ);
+  if (MOUSE_RESPONSE_OK != m.readData()) {
     Serial.println("error");
     return;
   }
@@ -33,9 +34,12 @@ void loop() {
   int x = get_x(status, m.readData());
   int y = get_y(status, m.readData());
 
+
+
   if (millis() - last < 100) {
     return;
   }
+
   last = millis();
   Serial.print(" dx ");
   Serial.print(x);
