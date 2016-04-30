@@ -6,23 +6,19 @@ Based on
 - http://computer-engineering.org/ps2mouse 
 
 ## Usage
-Download PS2.ino file and put it somewhere nearby. Include it in your scketch. That's all.
+Download PS2.ino and Mouse.ino files and put them in the same folder.
 
 ```cpp
-<<<<<<< HEAD
-PAN3402 mouse(5,6); // cl, dt
-mouse.sendData();
-mouse.readData()
-=======
-#include <../ps2/PS2.ino>
+Mouse m(5, 6); // cl, dt
+m.init();
 
-PS2 mouse(5, 6);
-mouse.sendData(0xEB); // get x/y command
-if (0xFA != m.readData()) {
-    Serial.println("error");
-    return;
-}
->>>>>>> master
+int data[2];
+m.read(data);
+
+Serial.print(" dx ");
+Serial.print(data[0]);
+Serial.print(" dy ");
+Serial.println(data[1]);
 ```
 
 For op720 mouse
