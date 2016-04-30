@@ -11,11 +11,11 @@ public:
   Mouse(int cl, int dt) : PS2(cl, dt) {  }
 
   void init() {
-    sendData(MOUSE_RESET);  // reset
+    sendData(MOUSE_RESET);
     readData();  // ack byte
-    readData();  // blank */
-    readData();  // blank */
-    sendData(MOUSE_MODE_REMOTE);  // remote mode
+    readData();  // blank
+    readData();  // blank
+    sendData(MOUSE_MODE_REMOTE);
     readData();  // ack
   }
 
@@ -34,7 +34,7 @@ public:
 private:
 
   int get_x(char status, int x) {
-    // 4 bit in status is sign for x
+    // 4'th bit in status is sign for x
     if (bitRead(status, 4)) {
       for(int i = 8; i < 16; ++i) {
         x |= (1<<i);
@@ -44,7 +44,7 @@ private:
   }
 
   int get_y(char status, int x) {
-    // 5 bit in status is sign for y
+    // 5'th bit in status is sign for y
     if (bitRead(status, 5)) {
       for(int i = 8; i < 16; ++i) {
         x |= (1<<i);
