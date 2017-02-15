@@ -1,7 +1,7 @@
 # arduino-ps2
 Arduino library to connect with optical mouse over PS/2 protocol
 
-Blog post about process http://imelnikov.ru/model/radio/arduino-rc
+Blog post about process http://imelnikov.ru/radio/arduino-rc
 
 Based on
 - http://www.computer-engineering.org/ps2protocol
